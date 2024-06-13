@@ -1,34 +1,54 @@
 from pytube import YouTube
-from tkinter import *
 import tkinter as tk
+from tkinter import messagebox
 
-window=Tk()
-# Set the size of the tkinter window
+def downloader():
+    url = url_entry.get()
+    if not url:
+        messagebox.showinfo("Error", "Please enter the link")
+        return
+    try:
+        video = YouTube(url)
+        
+        resolution = res.get()
+        if resolution == '360p':
+            video_stream = video.streams.filter(res='360p').first()
+        elif resolution == '720p':
+            video_stream = video.streams.filter(res='720p').first()
+        elif resolution == '1080p':
+            video_stream = video.streams.filter(res='1080p').first()
+        else:
+            messagebox.showinfo("Error", "Please select the resolution")
+            return
+        
+        video_stream.download()
+        messagebox.showinfo("Success", "Video downloaded successfully")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+# Create the main window
+window = tk.Tk()
 window.geometry("700x350")
-window.title("PythonGeeks")#give title to the window
-Label(window, text="YOUTUBE VIDEO DOWNLOADER",bg='grey', font=('Calibri 15')).pack()# a label
-Label(window, text="Enter the link to download", font=('Calibri 12')).pack()# a label
-Entry(window,textvariable=Text,width=50).pack()#entry field
-Checkbutton(text='360p',onvalue=18, offvalue=0,variable=res1).pack()#creating checkbox
-Checkbutton(text='720p',onvalue=22, offvalue=0,variable=res2).pack()#creating checkbox
-Checkbutton(text='1080p',onvalue=37, offvalue=0,variable=res3).pack()#creating checkbox
-#creating a button
-Button(window,text="Download",bg='green',command=downloader).pack()
+window.title("YouTube Video Downloader")
 
+# Title label
+tk.Label(window, text="YOUTUBE VIDEO DOWNLOADER", bg='grey', font=('Calibri', 15)).pack(pady=10)
 
+# URL entry label and field
+tk.Label(window, text="Enter the link to download", font=('Calibri', 12)).pack(pady=5)
+url_entry = tk.Entry(window, width=50)
+url_entry.pack(pady=5)
 
-def downloader():#defining a function
-    global res#global variable
-    t=text.get()#getting the value
-    video = YouTube(t)
- 
-    if res1==18:
-        res=18
-    elif res2==22:
-        res=22
-    elif res3==37:
-        res=37
- 
-    video_streams = video.streams.filter(file_extension = 'mp4').get_by_itag(res)
-    video_streams.download(filename = "Untitled", output_path = "video_path")
-    Label(window,text="Downloaded Successfully").pack()
+# Resolution radio buttons
+res = tk.StringVar()
+res.set(None)
+
+tk.Radiobutton(window, text='360p', variable=res, value='360p').pack()
+tk.Radiobutton(window, text='720p', variable=res, value='720p').pack()
+tk.Radiobutton(window, text='1080p', variable=res, value='1080p').pack()
+
+# Download button
+tk.Button(window, text="Download", bg='green', command=downloader).pack(pady=20)
+
+# Start the GUI event loop
+window.mainloop()
